@@ -8,17 +8,17 @@ var setHomePage = function(){
 }
 var DetailsView = Backbone.View.extend({
 	initialize: function(){
-		this.listenTo(this._model,'sync', this._render)
+		this.listenTo(this.model,'sync', this._render)
 	},
 
 	_render: function() {
 		var containerNode = document.querySelector('.pageContent')
 		var html = ''
-		if (this._model.get('multimedia').length){
-			html += '<img src="http://www.nytimes.com/' + this._model.get('multimedia')[0].url + '">'
+		if (this.model.get('multimedia').length){
+			html += '<img src="http://www.nytimes.com/' + this.model.get('multimedia')[0].url + '">'
 		} //if the multimedia exists we render the multimedia
 		// the image otherwise we render not available or dummy image
-
+		containerNode.innerHTML = html
 	}
 })
 
@@ -26,27 +26,26 @@ var ListView = Backbone.View.extend({
 	initialize: function(){
 		console.log('list view', this)
 		document.querySelector('.pageContent').innerHTML = '<img src="images/default.gif">'
-		console.log('here comes the collection', this._collection)
+		console.log('here comes the collection', this.collection)
 		//listenTo takes 3 inputs: 
 		//(1) the object we are listening to
 		//(2) the name of the event that the object will broadcast
 		//(3) the function we should run upon hearing that event
 
 		//(`this` is a reference to a view instance)
-		this.listenTo(this._collection,'sync', this._render)
+		this.listenTo(this.collection,'sync', this._render)
 	},
 	_render: function() {
 		console.log('here comes view in _render', this)
 		var containerNode = document.querySelector('.pageContent')
 		var html = ''
-		this._collection.forEach(function(inputModel) {
+		this.collection.forEach(function(inputModel) {
 			html += '<a href="#detail/' + inputModel.get('_id') + '">'
 				html += '<div class="summary">'
 					html += '<h3>' + inputModel.get('snippet') + '</h3>' //.get access the attributes of model
 				html += '</div'
 			html += '</a>'
 			})
-		console.log('here comes html',html)
 		//above is the same as below
 		// var articlesArray = this.collection.models
 		// console.log(articlesArray)
@@ -60,9 +59,6 @@ var ListView = Backbone.View.extend({
 	}
 
 })
-
-var setSearchPage = function(eventObj) {
-}
 
 var searchNode = document.querySelector('.search')
 searchNode.addEventListener('keydown', function(eventObj) {
@@ -113,8 +109,7 @@ var TimesRouter = Backbone.Router.extend({
 		})
 
 		var viewInstance = new ListView({
-			_collection: collectionInstance,
-			foo: 'bar'
+			collection: collectionInstance
 		})
 		viewInstance.hello = 'there'
 		// promise.then(function(){
@@ -136,10 +131,9 @@ var TimesRouter = Backbone.Router.extend({
 				'fq': '_id:' + articleID
 			}
 		})
-		var detailInstance = new DetailsView({
-			_model: modelInstance
+		new DetailsView({
+			model: modelInstance
 		})
-		console.log(detailInstance)
 	}
 })
 
